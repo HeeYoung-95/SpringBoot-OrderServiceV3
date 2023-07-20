@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.order.repository.OrderRepository">
+    <!--  상품 주문하기  -->
+    <insert id="saveOrder">
+        insert into orders(
+            member_id,
+            product_id,
+            count,
+            order_price
+        ) values (
+            #{member.member_id},
+            #{product.product_id},
+            #{count},
+            #{order_price}
+        )
+    </insert>
+    
+    <resultMap type="order" id="orderMap">
+    	<!-- order type이 받아야 할 정보들 -->
+    	<id property="order_id" column="order_id"/>
+    	<result property="count" column="count"/>
+    	<result property="order_price" column="order_price"/>
+    	<result property="order_date" column="order_date"/>
+    	
+    	<!-- has one 관계의 association -->
+    	<!-- Member Class를 가져오기 위한 association -->
+    	<association property="member">
+    		<id property="member_id" column="member_id"/>
+    		<result property="name" column="memberName"/>
+    	</association>
+    	
+    	<!-- Product Class를 가져오기 위한 association -->
+    	<association property="product">
+    		<id property="product_id" column="product_id"/>
+    		<result property="name" column="productName"/>
+    		<result property="stock" column="stock"/>
+    		<result property="price" column="price"/>
+    	</association>
+    </resultMap>
+
+    <!--  전체 주문내역 확인  -->
+    <select id="findOrdersByMemberId" resultMap="orderMap">
+        select 
+        	m.member_id,
+        	m.name as memberName,
+        	p.product_id,
+        	p.name as productName,
+        	p.stock,
+        	p.price,
+        	o.order_id,
+        	o.count,
+        	o.order_price,
+        	o.order_date 
+        from 
+        	orders o join member m on (o.member_id = m.member_id)
+        	join product p on (o.product_id = p.product_id)
+        where 
+        	m.member_id = #{member_id} 
+        order by 
+        	o.order_date desc
+    </select>
+
+    <!--  주문 상세내역  -->
+    <select id="findOrderById" resultMap="orderMap">
+        select 
+        	p.product_id,
+        	p.name as productName,
+        	o.order_id,
+        	o.count,
+        	o.order_price,
+        	o.order_date 
+        from 
+        	orders o join product p on (o.product_id = p.product_id)
+        where 
+        	o.order_id = #{order_id} 
+        order by 
+        	o.order_date desc
+    </select>
+
+    <!--  주문 취소하기  -->
+    <delete id="removeOrderById">
+        delete from orders where order_id = #{order_id}
+    </delete>
+</mapper>

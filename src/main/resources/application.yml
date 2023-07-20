@@ -1,0 +1,29 @@
+server:
+  servlet:
+    session:
+      tracking-modes: cookie
+
+spring:
+  datasource:
+#    driver-class-name: oracle.jdbc.driver.OracleDriver
+#    url: jdbc:oracle:thin:@localhost:1521:xe
+#    username: orderservice
+#    password: 1234
+    driver-class-name: net.sf.log4jdbc.sql.jdbcapi.DriverSpy
+    url: jdbc:log4jdbc:mariadb://localhost:3306/orderservice
+    username: root
+    password: root
+  profiles:
+    include: oauth
+
+mybatis:
+  config-location: classpath:config/mybatis-config.xml
+  mapper-locations: classpath:mapper/**/*.xml
+
+logging:
+  level:
+    jdbc:
+      audit: off
+      resultset: off
+      connection: off
+      sqlonly: off
